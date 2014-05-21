@@ -1,0 +1,7 @@
+---
+- name: restart mysql
+  service: name=mysql state=restarted
+  
+- name: restart nginx
+  service: name=nginx state=restarted
+  
