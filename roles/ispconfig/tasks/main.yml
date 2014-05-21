@@ -35,7 +35,8 @@
     - ntpdate
     - python-mysqldb
 
-- name: check if sendmail package installed, store result in sendmail_check variable
+# as sendmail is not always there ignore if not found
+- name: check if sendmail package installed, IGNORE ERRORS if not found
   command: dpkg-query -l sendmail
   register: sendmail_check
   changed_when: False
@@ -152,7 +153,24 @@
   - php5-xsl
   - php-apc
   
-- name: start php5-fpm
-  service: name=php5-fpm state=reloaded
+- name: add timezone to php.ini
+  lineinfile: "dest=/etc/php5/fpm/php.ini state=present regexp='[;]?date.timezone' line='date.timezone=\"{{ php_time_zone }}\"'"
+  notify: reload php5-fpm
+    
+- name: Install packages 
+  apt: "name={{item}} state=present"
+  with_items:
+  - fail2ban
   
+- name: Copy fail2ban config file
+  template: src=jail.local dest=/etc/fail2ban/jail.local 
   
+- name: Copy fail2ban filter.d files
+  template: src={{item}} dest=/etc/fail2ban/filter.d/{{item}} backup=yes
+  with_items:
+    - dovecot-pop3imap.conf
+    - postfix-sasl.conf
+  notify: restart fail2ban
+
+- name: Add spamassassin updates to crontab
+  cron: name="update spamassassin"  job="/usr/bin/sa-update --no-gpg &> /dev/null" state="present" special_time="daily"
