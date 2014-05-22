@@ -120,7 +120,7 @@
   apt: name=nginx state=present
 
 - name: install squirrelmail
-  apt: name=nginx state=present
+  apt: name=squirrelmail state=present
   
 - name: stop and remove init scripts of apache2
   service: name=apache2 state=stopped enabled=no
