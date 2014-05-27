@@ -1,6 +1,7 @@
 #!/usr/bin/expect
+set timeout 3600
 spawn /bin/bash
-send "cd /tmp"
+send "cd /tmp\n"
 send "wget http://www.ispconfig.org/downloads/ISPConfig-3-stable.tar.gz\n"
 send "tar xfz ISPConfig-3-stable.tar.gz\n"
 send "cd ispconfig3_install/install/\n"
@@ -21,7 +22,7 @@ expect "MySQL database to create"
 send "\n"
 expect "MySQL charset"
 send "\n"
-expect "Apache and nginx detected"
+expect "Apache and nginx detected. Select server to use for ISPConfig: (apache,nginx) \[apache\]:"
 send "nginx\n"
 
 expect "Country Name"
@@ -38,9 +39,9 @@ expect "Common Name"
 send "\n"
 expect "Email Address"
 send "\n"
-expect "ISPConfig Port"
+expect "ISPConfig Port \[8080\]"
 send "\n"
-expect "Do you want a secure"
+expect "Do you want a secure (SSL) connection to the ISPConfig web interface (y,n) \[y\]:"
 send "\n"
 
 expect "Country Name"
@@ -61,4 +62,6 @@ expect "A challenge password"
 send "\n"
 expect "An optional company name"
 send "\n"
+expect "Installation completed"
+wait
 

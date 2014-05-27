@@ -146,7 +146,6 @@
   - php5-ps
   - php5-pspell
   - php5-recode
-  - php5-snmp
   - php5-sqlite
   - php5-tidy
   - php5-xmlrpc
@@ -174,3 +173,54 @@
 
 - name: Add spamassassin updates to crontab
   cron: name="update spamassassin"  job="/usr/bin/sa-update --no-gpg &> /dev/null" state="present" special_time="daily"
+
+- name: Install packages 
+  apt: "name={{item}} state=present"
+  with_items:
+  - expect  
+  
+- name: Check for configured squirrelmail
+  shell: "/bin/grep -ic dovecot /etc/squirrelmail/config.php | /bin/grep '^0$'"
+  register: squirrelmail_not_configured
+  ignore_errors: true
+  
+- name: Copy expect script to configure squirrelmail
+  template: src=squirrelmail.exp dest=/root/squirrelmail.exp
+  when: squirrelmail_not_configured|success
+
+- name: set perm for script to configure squirrelmail
+  file: path=/root/squirrelmail.exp mode=0750
+  when: squirrelmail_not_configured|success
+
+- name: configure squirrelmail
+  shell: "/root/squirrelmail.exp"
+  when: squirrelmail_not_configured|success
+
+- name: remove squirrelmail configure script
+  file: path=/root/squirrelmail.exp state=absent
+  when: squirrelmail_not_configured|success
+
+- name: Check for installed ispconfig
+  command: /usr/bin/test ! -e "/usr/local/ispconfig"
+  register: ispconfig_absent
+  ignore_errors: true
+  
+- name: Copy expect script to configure ispconfig
+  template: src=ispconfig.exp dest=/root/ispconfig.exp
+  when: ispconfig_absent|success
+
+- name: set perm for script to configure ispconfig
+  file: path=/root/ispconfig.exp mode=0750
+  when: ispconfig_absent|success
+
+#- name: configure ispconfig
+#  shell: "/root/ispconfig.exp"
+#  when: ispconfig_absent|success
+
+#- name: remove ispconfig configure script
+#  file: path=/root/ispconfig.exp state=absent
+#  when: ispconfig_absent|success
+
+  
+  
+
