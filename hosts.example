@@ -1,0 +1,1 @@
+yourserverhere.com	ansible_ssh_user="xxxx"  mysql_root_password="xxxx" php_time_zone="Europe/Amsterdam"

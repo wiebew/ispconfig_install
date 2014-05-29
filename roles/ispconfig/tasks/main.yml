@@ -178,7 +178,10 @@
   apt: "name={{item}} state=present"
   with_items:
   - expect  
-  
+
+# as squirrelmail configure is a interactive script we use expect to deal with that
+# by checking the squirrelmail configuration for dovecot we make this an idempotent process  
+# is squirrelmail is not configured the script will run
 - name: Check for configured squirrelmail
   shell: "/bin/grep -ic dovecot /etc/squirrelmail/config.php | /bin/grep '^0$'"
   register: squirrelmail_not_configured
@@ -199,7 +202,10 @@
 - name: remove squirrelmail configure script
   file: path=/root/squirrelmail.exp state=absent
   when: squirrelmail_not_configured|success
-
+  
+# as isconfig install is a interactive script we use expect to deal with that
+# by checking if ispconfig is present we make this an idempotent process  
+# if ispconfig absent the install will run
 - name: Check for installed ispconfig
   command: /usr/bin/test ! -e "/usr/local/ispconfig"
   register: ispconfig_absent
