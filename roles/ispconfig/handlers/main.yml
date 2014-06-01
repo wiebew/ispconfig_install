@@ -2,6 +2,9 @@
 - name: restart mysql
   service: name=mysql state=restarted
   
+- name: restart postfix
+  service: name=postfix state=restarted
+  
 - name: restart nginx
   service: name=nginx state=restarted
   

@@ -1,5 +1,10 @@
 ---
+
 - hosts: all
   sudo: true
   roles:
      - ispconfig
+  vars_prompt:
+    - name: "private_key_password"
+      prompt: "Enter password to decrypt private key for the site"
+      private: yes

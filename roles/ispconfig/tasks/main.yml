@@ -1,232 +1,284 @@
----
-- name: apt-get update
-  apt: update_cache=yes upgrade=yes
-  
-- name: Add apt sources universe and multiverse
-  apt_repository: repo="{{item}}" state=present
-  with_items:
-    - deb http://security.ubuntu.com/ubuntu trusty-security multiverse
-    - deb-src http://security.ubuntu.com/ubuntu trusty-security multiverse
-    - deb http://eu-west-1.ec2.archive.ubuntu.com/ubuntu/ trusty universe
-    - deb-src http://eu-west-1.ec2.archive.ubuntu.com/ubuntu/ trusty universe
-    - deb http://eu-west-1.ec2.archive.ubuntu.com/ubuntu/ trusty-updates universe
-    - deb-src http://eu-west-1.ec2.archive.ubuntu.com/ubuntu/ trusty-updates universe
-    - deb http://eu-west-1.ec2.archive.ubuntu.com/ubuntu/ trusty multiverse
-    - deb-src http://eu-west-1.ec2.archive.ubuntu.com/ubuntu/ trusty multiverse
-    - deb http://eu-west-1.ec2.archive.ubuntu.com/ubuntu/ trusty-updates multiverse
-    - deb-src http://eu-west-1.ec2.archive.ubuntu.com/ubuntu/ trusty-updates multiverse
+---  
 
-- name: reconfigure dash to bash
-  file: "dest=/bin/sh src=bash state=link"
+  - name: apt-get update
+    apt: update_cache=yes upgrade=yes
   
-- name: remove app armor
-  apt: name={{item}} state=absent
-  with_items:
-    - apparmor
-    - apparmor-utils  
+  - name: Add apt sources universe and multiverse
+    apt_repository: repo="{{item}}" state=present
+    with_items:
+      - deb http://security.ubuntu.com/ubuntu trusty-security multiverse
+      - deb-src http://security.ubuntu.com/ubuntu trusty-security multiverse
+      - deb http://eu-west-1.ec2.archive.ubuntu.com/ubuntu/ trusty universe
+      - deb-src http://eu-west-1.ec2.archive.ubuntu.com/ubuntu/ trusty universe
+      - deb http://eu-west-1.ec2.archive.ubuntu.com/ubuntu/ trusty-updates universe
+      - deb-src http://eu-west-1.ec2.archive.ubuntu.com/ubuntu/ trusty-updates universe
+      - deb http://eu-west-1.ec2.archive.ubuntu.com/ubuntu/ trusty multiverse
+      - deb-src http://eu-west-1.ec2.archive.ubuntu.com/ubuntu/ trusty multiverse
+      - deb http://eu-west-1.ec2.archive.ubuntu.com/ubuntu/ trusty-updates multiverse
+      - deb-src http://eu-west-1.ec2.archive.ubuntu.com/ubuntu/ trusty-updates multiverse
+
+  - name: reconfigure dash to bash
+    file: "dest=/bin/sh src=bash state=link"
+  
+  - name: remove app armor
+    apt: name={{item}} state=absent
+    with_items:
+      - apparmor
+      - apparmor-utils  
    
-- name: Install packages 
-  apt: name={{item}} state=present
-  with_items:
-    - ssh
-#    - openssh-server  open ssh not necessary for cloud images
-    - vim-nox
-    - ntp 
-    - ntpdate
-    - python-mysqldb
+  - name: Install packages 
+    apt: name={{item}} state=present
+    with_items:
+      - ssh
+  #    - openssh-server  open ssh not necessary for cloud images
+      - vim-nox
+      - ntp 
+      - ntpdate
+      - python-mysqldb
+      - wget
 
-# as sendmail is not always there ignore if not found
-- name: check if sendmail package installed, IGNORE ERRORS if not found
-  command: dpkg-query -l sendmail
-  register: sendmail_check
-  changed_when: False
-  ignore_errors: yes
+  # as sendmail is not always there ignore if not found
+  - name: check if sendmail package installed, IGNORE ERRORS if not found
+    command: dpkg-query -l sendmail
+    register: sendmail_check
+    changed_when: False
+    ignore_errors: yes
   
-- name: disable and stop sendmail
-  service: name=sendmail state=stopped enabled=no
-  when: sendmail_check.stdout.find('no packages found') != -1
+  - name: disable and stop sendmail
+    service: name=sendmail state=stopped enabled=no
+    when: sendmail_check.stdout.find('no packages found') != -1
   
-- name: Install packages 
-  apt: name={{item}} state=present
-  with_items:
-    - postfix 
-    - postfix-mysql 
-    - postfix-doc 
-    - mysql-client 
-    - mysql-server 
-    - openssl 
-    - getmail4 
-    - rkhunter 
-    - binutils 
-    - dovecot-imapd 
-    - dovecot-pop3d 
-    - dovecot-mysql 
-    - dovecot-sieve 
-#    - sudo sudo already works on cloud image
+  - name: Install packages 
+    apt: name={{item}} state=present
+    with_items:
+      - postfix 
+      - postfix-mysql 
+      - postfix-doc 
+      - mysql-client 
+      - mysql-server 
+      - openssl 
+      - getmail4 
+      - rkhunter 
+      - binutils 
+      - dovecot-imapd 
+      - dovecot-pop3d 
+      - dovecot-mysql 
+      - dovecot-sieve 
+  #    - sudo sudo already works on cloud image
 
-- name: Copy postfix config files
-  template: src={{item}} dest=/etc/postfix/{{item}} backup=yes
-  with_items:
-    - main.cf
-    - master.cf
+  - name: Copy postfix config files
+    template: src={{item}} dest=/etc/postfix/{{item}} backup=yes
+    with_items:
+      - main.cf
+      - master.cf
    
 
-- name: Start the MySQL service
-  action: service name=mysql state=started
+  - name: Start the MySQL service
+    action: service name=mysql state=started
   
-# 'localhost' needs to be the last item for idempotency, see
-# http://ansible.cc/docs/modules.html#mysql-user
-- name: update mysql root password for all root accounts
-  mysql_user: name=root host={{ item }} password={{ mysql_root_password }} priv=*.*:ALL,GRANT
-  with_items:
-    - "{{ ansible_hostname }}"
-    - 127.0.0.1
-    - ::1
-    - localhost
-  notify: restart mysql
+  # 'localhost' needs to be the last item for idempotency, see
+  # http://ansible.cc/docs/modules.html#mysql-user
+  - name: update mysql root password for all root accounts
+    mysql_user: name=root host={{ item }} password={{ mysql_root_password }} priv=*.*:ALL,GRANT
+    with_items:
+      - "{{ ansible_hostname }}"
+      - 127.0.0.1
+      - ::1
+      - localhost
+    notify: restart mysql
 
-- name: copy .my.cnf file with root password credentials
-  template: src=.my.cnf dest=/root/.my.cnf owner=root mode=0600
+  - name: copy .my.cnf file with root password credentials
+    template: src=.my.cnf dest=/root/.my.cnf owner=root mode=0600
 
-- name: Install packages 
-  apt: name={{item}} state=present
-  with_items:  
-    - amavisd-new
-    - spamassassin 
-    - clamav 
-    - clamav-daemon 
-    - zoo 
-    - unzip 
-    - bzip2
-    - arj
-    - nomarch
-    - lzop
-    - cabextract
-    - apt-listchanges
-    - libnet-ldap-perl
-    - libauthen-sasl-perl
-    - clamav-docs
-    - daemon
-    - libio-string-perl
-    - libio-socket-ssl-perl
-    - libnet-ident-perl
-    - zip
-    - libnet-dns-perl
+  - name: Install packages 
+    apt: name={{item}} state=present
+    with_items:  
+      - amavisd-new
+      - spamassassin 
+      - clamav 
+      - clamav-daemon 
+      - zoo 
+      - unzip 
+      - bzip2
+      - arj
+      - nomarch
+      - lzop
+      - cabextract
+      - apt-listchanges
+      - libnet-ldap-perl
+      - libauthen-sasl-perl
+      - clamav-docs
+      - daemon
+      - libio-string-perl
+      - libio-socket-ssl-perl
+      - libnet-ident-perl
+      - zip
+      - libnet-dns-perl
 
-- name: stop and remove init scripts of spam assassin
-  service: name=spamassassin state=stopped enabled=no
+  - name: stop and remove init scripts of spam assassin
+    service: name=spamassassin state=stopped enabled=no
 
-- name: install nginx
-  apt: name=nginx state=present
+  - name: install nginx
+    apt: name=nginx state=present
 
-- name: install squirrelmail
-  apt: name=squirrelmail state=present
+  - name: install squirrelmail
+    apt: name=squirrelmail state=present
   
-- name: stop and remove init scripts of apache2
-  service: name=apache2 state=stopped enabled=no
-  ignore_errors: yes
+  - name: stop and remove init scripts of apache2
+    service: name=apache2 state=stopped enabled=no
+    ignore_errors: yes
 
-- name: start nginx
-  service: name=nginx state=started enabled=yes
+  - name: start nginx
+    service: name=nginx state=started enabled=yes
    
-- name: Install packages 
-  apt: name={{item}} state=present
-  with_items:
-  - php5-fpm
-  - php5-mysql 
-  - php5-curl
-  - php5-gd
-  - php5-intl
-  - php-pear
-  - php5-imagick
-  - php5-imap
-  - php5-mcrypt
-  - php5-memcache
-  - php5-ming
-  - php5-ps
-  - php5-pspell
-  - php5-recode
-  - php5-sqlite
-  - php5-tidy
-  - php5-xmlrpc
-  - php5-xsl
-  - php-apc
+  - name: Install packages 
+    apt: name={{item}} state=present
+    with_items:
+    - php5-fpm
+    - php5-mysql 
+    - php5-curl
+    - php5-gd
+    - php5-intl
+    - php-pear
+    - php5-imagick
+    - php5-imap
+    - php5-mcrypt
+    - php5-memcache
+    - php5-ming
+    - php5-ps
+    - php5-pspell
+    - php5-recode
+    - php5-sqlite
+    - php5-tidy
+    - php5-xmlrpc
+    - php5-xsl
+    - php-apc
   
-- name: add timezone to php.ini
-  lineinfile: "dest=/etc/php5/fpm/php.ini state=present regexp='[;]?date.timezone' line='date.timezone=\"{{ php_time_zone }}\"'"
-  notify: reload php5-fpm
+  - name: add timezone to php.ini
+    lineinfile: "dest=/etc/php5/fpm/php.ini state=present regexp='[;]?date.timezone' line='date.timezone=\"{{ php_time_zone }}\"'"
+    notify: reload php5-fpm
     
-- name: Install packages 
-  apt: "name={{item}} state=present"
-  with_items:
-  - fail2ban
+  - name: Install packages 
+    apt: "name={{item}} state=present"
+    with_items:
+    - fail2ban
   
-- name: Copy fail2ban config file
-  template: src=jail.local dest=/etc/fail2ban/jail.local 
+  - name: Copy fail2ban config file
+    template: src=jail.local dest=/etc/fail2ban/jail.local 
   
-- name: Copy fail2ban filter.d files
-  template: src={{item}} dest=/etc/fail2ban/filter.d/{{item}} backup=yes
-  with_items:
-    - dovecot-pop3imap.conf
-    - postfix-sasl.conf
-  notify: restart fail2ban
+  - name: Copy fail2ban filter.d files
+    template: src={{item}} dest=/etc/fail2ban/filter.d/{{item}} backup=yes
+    with_items:
+      - dovecot-pop3imap.conf
+      - postfix-sasl.conf
+    notify: restart fail2ban
 
-- name: Add spamassassin updates to crontab
-  cron: name="update spamassassin"  job="/usr/bin/sa-update --no-gpg &> /dev/null" state="present" special_time="daily"
+  - name: Add spamassassin updates to crontab
+    cron: name="update spamassassin"  job="/usr/bin/sa-update --no-gpg &> /dev/null" state="present" special_time="daily"
 
-- name: Install packages 
-  apt: "name={{item}} state=present"
-  with_items:
-  - expect  
+  - name: Install packages 
+    apt: "name={{item}} state=present"
+    with_items:
+    - expect  
 
-# as squirrelmail configure is a interactive script we use expect to deal with that
-# by checking the squirrelmail configuration for dovecot we make this an idempotent process  
-# is squirrelmail is not configured the script will run
-- name: Check for configured squirrelmail
-  shell: "/bin/grep -ic dovecot /etc/squirrelmail/config.php | /bin/grep '^0$'"
-  register: squirrelmail_not_configured
-  ignore_errors: true
+  # as squirrelmail configure is a interactive script we use expect to deal with that
+  # by checking the squirrelmail configuration for dovecot we make this an idempotent process  
+  # is squirrelmail is not configured the script will run
+  - name: Check for configured squirrelmail
+    shell: "/bin/grep -ic dovecot /etc/squirrelmail/config.php | /bin/grep '^0$'"
+    register: squirrelmail_not_configured
+    ignore_errors: true
   
-- name: Copy expect script to configure squirrelmail
-  template: src=squirrelmail.exp dest=/root/squirrelmail.exp
-  when: squirrelmail_not_configured|success
+  - name: Copy expect script to configure squirrelmail
+    template: src=squirrelmail.exp dest=/root/squirrelmail.exp
+    when: squirrelmail_not_configured|success
 
-- name: set perm for script to configure squirrelmail
-  file: path=/root/squirrelmail.exp mode=0750
-  when: squirrelmail_not_configured|success
+  - name: set perm for script to configure squirrelmail
+    file: path=/root/squirrelmail.exp mode=0750
+    when: squirrelmail_not_configured|success
 
-- name: configure squirrelmail
-  shell: "/root/squirrelmail.exp"
-  when: squirrelmail_not_configured|success
+  - name: configure squirrelmail
+    shell: "/root/squirrelmail.exp"
+    when: squirrelmail_not_configured|success
 
-- name: remove squirrelmail configure script
-  file: path=/root/squirrelmail.exp state=absent
-  when: squirrelmail_not_configured|success
+  - name: remove squirrelmail configure script
+    file: path=/root/squirrelmail.exp state=absent
+    when: squirrelmail_not_configured|success
   
-# as isconfig install is a interactive script we use expect to deal with that
-# by checking if ispconfig is present we make this an idempotent process  
-# if ispconfig absent the install will run
-- name: Check for installed ispconfig
-  command: /usr/bin/test ! -e "/usr/local/ispconfig"
-  register: ispconfig_absent
-  ignore_errors: true
+  # as isconfig install is a interactive script we use expect to deal with that
+  # by checking if ispconfig is present we make this an idempotent process  
+  # if ispconfig absent the install will run
+  - name: Check for installed ispconfig
+    command: /usr/bin/test ! -e "/usr/local/ispconfig"
+    register: ispconfig_absent
+    ignore_errors: true
   
-- name: Copy expect script to configure ispconfig
-  template: src=ispconfig.exp dest=/root/ispconfig.exp
-  when: ispconfig_absent|success
+  - name: Copy expect script to configure ispconfig
+    template: src=ispconfig.exp dest=/root/ispconfig.exp
+    when: ispconfig_absent|success
 
-- name: set perm for script to configure ispconfig
-  file: path=/root/ispconfig.exp mode=0750
-  when: ispconfig_absent|success
+  - name: set perm for script to configure ispconfig
+    file: path=/root/ispconfig.exp mode=0750
+    when: ispconfig_absent|success
 
-#- name: configure ispconfig
-#  shell: "/root/ispconfig.exp"
-#  when: ispconfig_absent|success
+  - name: configure ispconfig
+    command: "/root/ispconfig.exp"
+    when: ispconfig_absent|success
 
-#- name: remove ispconfig configure script
-#  file: path=/root/ispconfig.exp state=absent
-#  when: ispconfig_absent|success
+  - name: remove ispconfig configure script
+    file: path=/root/ispconfig.exp state=absent
+    when: ispconfig_absent|success
 
+  # install startssl certificates
+  - name: copy startssl certificate
+    copy: src=site.key.crypted dest=/etc/ssl/private/site.key.crypted force=no
+
+  # this case is added to deal with a wrong password for decrypting ssl
+  - command: /usr/bin/test -e /etc/ssl/private/site.key
+    register: key_cert_present
+    ignore_errors: True
+    
+  - name: decrypt ssl
+    command: /usr/bin/openssl rsa -in /etc/ssl/private/site.key.crypted -out /etc/ssl/private/site.key -passin pass:{{private_key_password}}
+    when: key_cert_present|failed
   
+  - name: copy startssl certificate
+    copy: src=site.crt.startssl dest=/etc/ssl/private/site.crt.startssl
+    when: key_cert_present|failed
   
+  - name: get root certificates part 1
+    command: wget http://www.startssl.com/certs/ca.pem -O /etc/ssl/private/ca.pem 
+    when: key_cert_present|failed
+
+  - name: get root certificates part 2
+    command: wget http://www.startssl.com/certs/sub.class1.server.ca.pem -O /etc/ssl/private/sub.class1.server.ca.pem
+    when: key_cert_present|failed
+
+  # nginx needs the certs combined in one file
+  - name: combine certs for nginx
+    shell: "cat /etc/ssl/private/site.crt.startssl /etc/ssl/private/sub.class1.server.ca.pem /etc/ssl/private/ca.pem > /etc/ssl/private/site.crt"
+    when: key_cert_present|failed
+
+  - name: cleanup intermediate certs
+    file: name=/etc/ssl/private/{{item}} state=absent
+    with_items:
+      - site.crt.startssl
+      - sub.class1.server.ca.pem
+      - ca.pem
+
+  - name: change private certs in nginx
+    lineinfile: dest=/etc/nginx/sites-available/ispconfig.vhost regexp="^[ \t]+ssl_certificate_key.*"  line='        ssl_certificate_key /etc/ssl/private/site.key;'
+    notify: restart nginx
+    
+  - name: change public certs in nginx
+    lineinfile: dest=/etc/nginx/sites-available/ispconfig.vhost regexp="^[ \t]+ssl_certificate[ \t].*"  line='        ssl_certificate /etc/ssl/private/site.crt;'
+    notify: restart nginx
+
+  - name: change private certs in postfix
+    lineinfile: dest=/etc/nginx/sites-available/ispconfig.vhost regexp="^smtpd_tls_key_file"  line='smtpd_tls_key_file = /etc/ssl/private/site.key;'
+    notify: restart postfix
+    
+  - name: change public certs in nginx
+    lineinfile: dest=/etc/nginx/sites-available/ispconfig.vhost regexp="^smtpd_tls_cert_file"  line='smtpd_tls_cert_file = /etc/ssl/private/site.crt;'
+    notify: restart postfix
 
