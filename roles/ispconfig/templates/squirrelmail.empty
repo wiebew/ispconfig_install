@@ -1,0 +1,9 @@
+#!/bin/sh
+empty -L /root/empty.log -f -i in -o out squirrelmail-configure
+empty -w -i out -o in "Command >>" "D\n"
+empty -w -i out -o in "Command >>" "dovecot\n"
+empty -w -i out -o in "Press enter to continue" "\n"
+empty -w -i out -o in "Command >>" "S\n"
+empty -w -i out -o in "Press enter to continue" "\n"
+empty -w -i out -o in "Command >>" "Q\n"
+exit 0

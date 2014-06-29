@@ -1,4 +1,7 @@
 ---
+- name: restart server
+  action: command /sbin/reboot
+  
 - name: restart mysql
   service: name=mysql state=restarted
   

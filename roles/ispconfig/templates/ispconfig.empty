@@ -1,0 +1,35 @@
+#!/bin/sh
+cd /tmp
+wget http://www.ispconfig.org/downloads/ISPConfig-3-stable.tar.gz
+tar xfz ISPConfig-3-stable.tar.gz
+cd ispconfig3_install/install/
+empty -L /root/empty.log -f -i in -o out php -q install.php
+empty -w -i out -o in "Select language" "\n"
+empty -w -i out -o in "Installation mode" "\n"
+empty -w -i out -o in "Full qualified hostname" "\n"
+empty -w -i out -o in "MySQL server hostname" "\n"
+empty -w -i out -o in "MySQL root username" "\n"
+empty -w -i out -o in "MySQL root password" "{{mysql_root_password}}\n"
+empty -w -i out -o in "MySQL database to create" "\n"
+empty -w -i out -o in "MySQL charset" "\n"
+empty -w -i out -o in "Apache and nginx detected" "nginx\n"
+empty -w -i out -o in "Country Name" "\n"
+empty -w -i out -o in "State or Province Name" "\n"
+empty -w -i out -o in "Locality Name" "\n"
+empty -w -i out -o in "Organization Name" "\n"
+empty -w -i out -o in "Organizational Unit Name" "\n"
+empty -w -i out -o in "Common Name" "\n"
+empty -w -i out -o in "Email Address" "\n"
+empty -w -i out -o in "ISPConfig Port" "\n"
+empty -w -i out -o in "Do you want a secure" "\n"
+empty -w -i out -o in "Country Name" "\n"
+empty -w -i out -o in "State or Province Name" "\n"
+empty -w -i out -o in "Locality Name" "\n"
+empty -w -i out -o in "Organization Name" "\n"
+empty -w -i out -o in "Organizational Unit Name" "\n"
+empty -w -i out -o in "Common Name" "\n"
+empty -w -i out -o in "Email Address" "\n"
+empty -w -i out -o in "A challenge password" "\n"
+empty -w -i out -o in "An optional company name" "\n"
+empty -w -i out -o in "Installation completed"
+exit 0

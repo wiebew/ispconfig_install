@@ -179,9 +179,10 @@
   - name: Install packages 
     apt: "name={{item}} state=present"
     with_items:
-    - expect  
+    - expect
+    - empty-expect
 
-  # as squirrelmail configure is a interactive script we use expect to deal with that
+  # as squirrelmail configure is a interactive script we use empty-expect to deal with that
   # by checking the squirrelmail configuration for dovecot we make this an idempotent process  
   # is squirrelmail is not configured the script will run
   - name: Check for configured squirrelmail
@@ -190,19 +191,19 @@
     ignore_errors: true
   
   - name: Copy expect script to configure squirrelmail
-    template: src=squirrelmail.exp dest=/root/squirrelmail.exp
+    template: src=squirrelmail.empty dest=/root/squirrelmail.empty
     when: squirrelmail_not_configured|success
 
   - name: set perm for script to configure squirrelmail
-    file: path=/root/squirrelmail.exp mode=0750
+    file: path=/root/squirrelmail.empty mode=0750
     when: squirrelmail_not_configured|success
 
   - name: configure squirrelmail
-    shell: "/root/squirrelmail.exp"
+    shell: "/root/squirrelmail.empty"
     when: squirrelmail_not_configured|success
 
   - name: remove squirrelmail configure script
-    file: path=/root/squirrelmail.exp state=absent
+    file: path=/root/squirrelmail.empty state=absent
     when: squirrelmail_not_configured|success
   
   # as isconfig install is a interactive script we use expect to deal with that
@@ -214,19 +215,19 @@
     ignore_errors: true
   
   - name: Copy expect script to configure ispconfig
-    template: src=ispconfig.exp dest=/root/ispconfig.exp
+    template: src=ispconfig.empty dest=/root/ispconfig.empty
     when: ispconfig_absent|success
 
   - name: set perm for script to configure ispconfig
-    file: path=/root/ispconfig.exp mode=0750
+    file: path=/root/ispconfig.empty mode=0750
     when: ispconfig_absent|success
 
   - name: configure ispconfig
-    command: "/root/ispconfig.exp"
+    command: "/root/ispconfig.empty"
     when: ispconfig_absent|success
 
   - name: remove ispconfig configure script
-    file: path=/root/ispconfig.exp state=absent
+    file: path=/root/ispconfig.empty state=absent
     when: ispconfig_absent|success
 
   # install startssl certificates
@@ -273,12 +274,4 @@
   - name: change public certs in nginx
     lineinfile: dest=/etc/nginx/sites-available/ispconfig.vhost regexp="^[ \t]+ssl_certificate[ \t].*"  line='        ssl_certificate /etc/ssl/private/site.crt;'
     notify: restart nginx
-
-  - name: change private certs in postfix
-    lineinfile: dest=/etc/nginx/sites-available/ispconfig.vhost regexp="^smtpd_tls_key_file"  line='smtpd_tls_key_file = /etc/ssl/private/site.key;'
-    notify: restart postfix
-    
-  - name: change public certs in nginx
-    lineinfile: dest=/etc/nginx/sites-available/ispconfig.vhost regexp="^smtpd_tls_cert_file"  line='smtpd_tls_cert_file = /etc/ssl/private/site.crt;'
-    notify: restart postfix
 
