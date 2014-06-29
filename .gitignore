@@ -4,6 +4,8 @@ hosts
 *.pem
 *.key
 *.crt
+*.startssl
+*.crypted
 
 #OS Stufff
 .DS_Store
