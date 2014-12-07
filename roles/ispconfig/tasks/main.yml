@@ -279,17 +279,9 @@
       - sub.class1.server.ca.pem
       - ca.pem
 
-  - name: change private certs in nginx
-    lineinfile: dest=/etc/nginx/sites-available/ispconfig.vhost regexp="^[ \t]+ssl_certificate_key.*"  line='        ssl_certificate_key /etc/ssl/private/site.key;'
-    notify: restart nginx
-    
-  - name: change public certs in nginx
-    lineinfile: dest=/etc/nginx/sites-available/ispconfig.vhost regexp="^[ \t]+ssl_certificate[ \t].*"  line='        ssl_certificate /etc/ssl/private/site.crt;'
-    notify: restart nginx
-    
   - name: remove nginx default file
     file: path=/etc/nginx/sites-enabled/default state=absent
 
   - name: upload ispconfig.vhost file
     copy: src=ispconfig.vhost dest=/etc/nginx/sites-available/ispconfig.vhost mode=644 force=yes
-    notify: restart nginx
+    notify: restart server

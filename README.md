@@ -4,7 +4,7 @@ ispconfig_install
 Installation of ubuntu platform, dovecot, squirrelmail, nginx for ispconfig
 
 
-Basically this script works on a cleanly installed  ssl enabled ubuntu 14.04 host with access to mail, ssh, http, https, 8080 and 8081 ports. An ansible script for preparing a server on Hetzner (my provider) can be found here: https://github.com/wiebew/hetzner-scripts 
+Basically this script works on a cleanly installed  ssl enabled ubuntu 14.04 host that allows internet access to mail, ssh, http, https, 8080 and 8081 ports. An ansible script for preparing a server on Hetzner (my provider) can be found here: https://github.com/wiebew/hetzner-scripts 
 
 __IMPORTANT__ It assumes you are using a __startssl__ provided free ssl key. It will pull root certificates from startssl.com to create a keyfile that nginx can use. See https://www.startssl.com/?app=42. 
 
