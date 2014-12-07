@@ -9,7 +9,7 @@ Basically this script works on a cleanly installed  ssl enabled ubuntu 14.04 hos
 __IMPORTANT__ It assumes you are using a __startssl__ provided free ssl key. It will pull root certificates from startssl.com to create a keyfile that nginx can use. See https://www.startssl.com/?app=42. 
 
 In the folder roles/ispconfig/files you need to add
-* `site.crt.startssl`, the pubic startssl key
+* `site.crt.startssl`, the public startssl key
 * `site.key.crypted`, password protected private keyfile from startssl. The ansible script will prompt for a password
 
 You need to copy the `hosts.example` to a `hosts` file and change the content to your needs
