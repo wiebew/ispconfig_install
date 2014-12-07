@@ -1,0 +1,213 @@
+# put everything behind ssl
+server {
+        listen 8081;
+
+        ssl on;
+        ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+        ssl_certificate /etc/ssl/private/site.crt;
+        ssl_certificate_key /etc/ssl/private/site.key;
+
+        # redirect to https if accessed with http
+        error_page 497 https://$host:8081$request_uri;
+
+        server_name _;
+
+        root   /var/www/apps;
+
+        client_max_body_size 100M;
+
+        location / {
+               index index.php index.html;
+        }
+
+        # serve static files directly
+        location ~* ^.+.(jpg|jpeg|gif|css|png|js|ico|html|xml|txt)$ {
+               access_log        off;
+        }
+
+        location ~ \.php$ {
+               try_files $uri =404;
+               fastcgi_param   QUERY_STRING            $query_string;
+               fastcgi_param   REQUEST_METHOD          $request_method;
+               fastcgi_param   CONTENT_TYPE            $content_type;
+               fastcgi_param   CONTENT_LENGTH          $content_length;
+
+               fastcgi_param   SCRIPT_FILENAME         $request_filename;
+               fastcgi_param   SCRIPT_NAME             $fastcgi_script_name;
+               fastcgi_param   REQUEST_URI             $request_uri;
+               fastcgi_param   DOCUMENT_URI            $document_uri;
+               fastcgi_param   DOCUMENT_ROOT           $document_root;
+               fastcgi_param   SERVER_PROTOCOL         $server_protocol;
+
+               fastcgi_param   GATEWAY_INTERFACE       CGI/1.1;
+               fastcgi_param   SERVER_SOFTWARE         nginx/$nginx_version;
+
+               fastcgi_param   REMOTE_ADDR             $remote_addr;
+               fastcgi_param   REMOTE_PORT             $remote_port;
+               fastcgi_param   SERVER_ADDR             $server_addr;
+               fastcgi_param   SERVER_PORT             $server_port;
+               fastcgi_param   SERVER_NAME             $server_name;
+
+               fastcgi_param   HTTPS                   $https;
+
+               # PHP only, required if PHP was built with --enable-force-cgi-redirect
+               fastcgi_param   REDIRECT_STATUS         200;
+               fastcgi_pass unix:/var/lib/php5-fpm/apps.sock;
+               fastcgi_index index.php;
+               fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+               #fastcgi_param PATH_INFO $fastcgi_script_name;
+               fastcgi_buffer_size 128k;
+               fastcgi_buffers 256 4k;
+               fastcgi_busy_buffers_size 256k;
+               fastcgi_temp_file_write_size 256k;
+        }
+
+        location ~ /\. {
+               deny  all;
+        }
+
+        location /phpmyadmin {
+               root /usr/share/;
+               index index.php index.html index.htm;
+               location ~ ^/phpmyadmin/(.+\.php)$ {
+                       try_files $uri =404;
+                       root /usr/share/;
+                       fastcgi_param   QUERY_STRING            $query_string;
+                       fastcgi_param   REQUEST_METHOD          $request_method;
+                       fastcgi_param   CONTENT_TYPE            $content_type;
+                       fastcgi_param   CONTENT_LENGTH          $content_length;
+
+                       fastcgi_param   SCRIPT_FILENAME         $request_filename;
+                       fastcgi_param   SCRIPT_NAME             $fastcgi_script_name;
+                       fastcgi_param   REQUEST_URI             $request_uri;
+                       fastcgi_param   DOCUMENT_URI            $document_uri;
+                       fastcgi_param   DOCUMENT_ROOT           $document_root;
+                       fastcgi_param   SERVER_PROTOCOL         $server_protocol;
+
+                       fastcgi_param   GATEWAY_INTERFACE       CGI/1.1;
+                       fastcgi_param   SERVER_SOFTWARE         nginx/$nginx_version;
+
+                       fastcgi_param   REMOTE_ADDR             $remote_addr;
+                       fastcgi_param   REMOTE_PORT             $remote_port;
+                       fastcgi_param   SERVER_ADDR             $server_addr;
+                       fastcgi_param   SERVER_PORT             $server_port;
+                       fastcgi_param   SERVER_NAME             $server_name;
+
+                       fastcgi_param   HTTPS                   $https;
+
+                       # PHP only, required if PHP was built with --enable-force-cgi-redirect
+                       fastcgi_param   REDIRECT_STATUS         200;
+                       # To access phpMyAdmin, the default user (like www-data on Debian/Ubuntu) must be used
+                       #fastcgi_pass 127.0.0.1:9000;
+                       fastcgi_pass unix:/var/run/php5-fpm.sock;
+                       fastcgi_index index.php;
+                       fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+                       fastcgi_buffer_size 128k;
+                       fastcgi_buffers 256 4k;
+                       fastcgi_busy_buffers_size 256k;
+                       fastcgi_temp_file_write_size 256k;
+                       fastcgi_read_timeout 1200;
+               }
+               location ~* ^/phpmyadmin/(.+\.(jpg|jpeg|gif|css|png|js|ico|html|xml|txt))$ {
+                       root /usr/share/;
+               }
+        }
+        location /phpMyAdmin {
+               rewrite ^/* /phpmyadmin last;
+        }
+
+
+
+        location /squirrelmail {
+               root /usr/share/;
+               index index.php index.html index.htm;
+               location ~ ^/squirrelmail/(.+\.php)$ {
+                       try_files $uri =404;
+                       root /usr/share/;
+                       fastcgi_param   QUERY_STRING            $query_string;
+                       fastcgi_param   REQUEST_METHOD          $request_method;
+                       fastcgi_param   CONTENT_TYPE            $content_type;
+                       fastcgi_param   CONTENT_LENGTH          $content_length;
+
+                       fastcgi_param   SCRIPT_FILENAME         $request_filename;
+                       fastcgi_param   SCRIPT_NAME             $fastcgi_script_name;
+                       fastcgi_param   REQUEST_URI             $request_uri;
+                       fastcgi_param   DOCUMENT_URI            $document_uri;
+                       fastcgi_param   DOCUMENT_ROOT           $document_root;
+                       fastcgi_param   SERVER_PROTOCOL         $server_protocol;
+
+                       fastcgi_param   GATEWAY_INTERFACE       CGI/1.1;
+                       fastcgi_param   SERVER_SOFTWARE         nginx/$nginx_version;
+
+                       fastcgi_param   REMOTE_ADDR             $remote_addr;
+                       fastcgi_param   REMOTE_PORT             $remote_port;
+                       fastcgi_param   SERVER_ADDR             $server_addr;
+                       fastcgi_param   SERVER_PORT             $server_port;
+                       fastcgi_param   SERVER_NAME             $server_name;
+
+                       fastcgi_param   HTTPS                   $https;
+
+                       # PHP only, required if PHP was built with --enable-force-cgi-redirect
+                       fastcgi_param   REDIRECT_STATUS         200;
+                       # To access SquirrelMail, the default user (like www-data on Debian/Ubuntu) must be used
+                       #fastcgi_pass 127.0.0.1:9000;
+                       fastcgi_pass unix:/var/run/php5-fpm.sock;
+                       fastcgi_index index.php;
+                       fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+                       fastcgi_buffer_size 128k;
+                       fastcgi_buffers 256 4k;
+                       fastcgi_busy_buffers_size 256k;
+                       fastcgi_temp_file_write_size 256k;
+               }
+               location ~* ^/squirrelmail/(.+\.(jpg|jpeg|gif|css|png|js|ico|html|xml|txt))$ {
+                       root /usr/share/;
+               }
+        }
+        location /webmail {
+               rewrite ^/* /squirrelmail last;
+        }
+        location /cgi-bin/mailman {
+               root /usr/lib/;
+               fastcgi_split_path_info (^/cgi-bin/mailman/[^/]*)(.*)$;
+               fastcgi_param   QUERY_STRING            $query_string;
+               fastcgi_param   REQUEST_METHOD          $request_method;
+               fastcgi_param   CONTENT_TYPE            $content_type;
+               fastcgi_param   CONTENT_LENGTH          $content_length;
+
+               fastcgi_param   SCRIPT_FILENAME         $request_filename;
+               fastcgi_param   SCRIPT_NAME             $fastcgi_script_name;
+               fastcgi_param   REQUEST_URI             $request_uri;
+               fastcgi_param   DOCUMENT_URI            $document_uri;
+               fastcgi_param   DOCUMENT_ROOT           $document_root;
+               fastcgi_param   SERVER_PROTOCOL         $server_protocol;
+
+               fastcgi_param   GATEWAY_INTERFACE       CGI/1.1;
+               fastcgi_param   SERVER_SOFTWARE         nginx/$nginx_version;
+
+               fastcgi_param   REMOTE_ADDR             $remote_addr;
+               fastcgi_param   REMOTE_PORT             $remote_port;
+               fastcgi_param   SERVER_ADDR             $server_addr;
+               fastcgi_param   SERVER_PORT             $server_port;
+               fastcgi_param   SERVER_NAME             $server_name;
+
+               fastcgi_param   HTTPS                   $https;
+
+               # PHP only, required if PHP was built with --enable-force-cgi-redirect
+               fastcgi_param   REDIRECT_STATUS         200;
+               fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+               fastcgi_param PATH_INFO $fastcgi_path_info;
+               fastcgi_param PATH_TRANSLATED $document_root$fastcgi_path_info;
+               fastcgi_intercept_errors on;
+               fastcgi_pass unix:/var/run/fcgiwrap.socket;
+        }
+
+        location /images/mailman {
+               alias /usr/share/images/mailman;
+        }
+
+        location /pipermail {
+               alias /var/lib/mailman/archives/public;
+               autoindex on;
+        }		
+}		
+		
