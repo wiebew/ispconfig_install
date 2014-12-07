@@ -284,4 +284,4 @@
 
   - name: upload ispconfig.vhost file
     copy: src=ispconfig.vhost dest=/etc/nginx/sites-available/ispconfig.vhost mode=644 force=yes
-    notify: restart serverz
+    notify: restart server
