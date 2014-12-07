@@ -1,11 +1,11 @@
 hosts
 
 # SSH/SSL keys
-*.pem
-*.key
-*.crt
-*.startssl
-*.crypted
+**/*.pem
+**/*.key
+**/*.crt
+**/*.startssl
+**/*.crypted
 
 #OS Stufff
 .DS_Store

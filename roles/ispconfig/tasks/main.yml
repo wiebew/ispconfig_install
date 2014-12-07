@@ -231,8 +231,20 @@
     when: ispconfig_absent|success
 
   # install startssl certificates
+  - name: copy crypted certificate
+    copy: src=site.key.crypted dest=/etc/ssl/private/site.key.crypted mode=600 force=yes
+    register: new_crt_copied
+
   - name: copy startssl certificate
-    copy: src=site.key.crypted dest=/etc/ssl/private/site.key.crypted force=no
+    copy: src=site.crt.startssl dest=/etc/ssl/private/site.crt.startssl mode=600 force=yes
+    register: new_key_copied
+  
+  # remove certificate files if a new crypted key file was copied
+  - file: path=/etc/ssl/private/{{item}} state=absent
+    when: new_key_copied|changed or new_crt_copied|changed
+    with_items:
+    - site.key
+    - site.crt
 
   # this case is added to deal with a wrong password for decrypting ssl
   - command: /usr/bin/test -e /etc/ssl/private/site.key
@@ -241,10 +253,6 @@
     
   - name: decrypt ssl
     command: /usr/bin/openssl rsa -in /etc/ssl/private/site.key.crypted -out /etc/ssl/private/site.key -passin pass:{{private_key_password}}
-    when: key_cert_present|failed
-  
-  - name: copy startssl certificate
-    copy: src=site.crt.startssl dest=/etc/ssl/private/site.crt.startssl
     when: key_cert_present|failed
   
   - name: get root certificates part 1
@@ -263,7 +271,6 @@
   - name: cleanup intermediate certs
     file: name=/etc/ssl/private/{{item}} state=absent
     with_items:
-      - site.crt.startssl
       - sub.class1.server.ca.pem
       - ca.pem
 
@@ -274,4 +281,10 @@
   - name: change public certs in nginx
     lineinfile: dest=/etc/nginx/sites-available/ispconfig.vhost regexp="^[ \t]+ssl_certificate[ \t].*"  line='        ssl_certificate /etc/ssl/private/site.crt;'
     notify: restart nginx
+    
+  - name: remove nginx default file
+    file: path=/etc/nginx/sites-enabled/default state=absent
 
+  - name: upload ispconfig.vhost file
+    copy: src=ispconfig.vhost dest=/etc/nginx/sites-available/ispconfig.vhost mode=644 force=yes
+    notify: restart nginx

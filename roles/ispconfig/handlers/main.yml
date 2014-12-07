@@ -1,7 +1,4 @@
 ---
-- name: restart server
-  action: command /sbin/reboot
-  
 - name: restart mysql
   service: name=mysql state=restarted
   
@@ -16,3 +13,7 @@
 
 - name: restart fail2ban
   service: name=fail2ban state=restarted
+
+- name: restart server
+  action: command /sbin/reboot
+  
