@@ -7,7 +7,7 @@ The content of this script is based on the excellent tutorial from Falko Timme o
 
 I am using ispconfig for a number of years now, but I find I make too many errors with the manual entries needed to implement the howto. So I have automated the howto.
 
-Basically this script works on a cleanly installed  ssl enabled ubuntu 14.04 host that allows internet access to mail, ssh, http, https, 8080 and 8081 ports. An ansible script for preparing a server on Hetzner (my provider) can be found here: https://github.com/wiebew/hetzner-scripts 
+Basically this script works on a cleanly installed  SSH enabled ubuntu 14.04 host that allows internet access to mail, ssh, http, https, 8080 and 8081 ports. An ansible script for preparing a server on Hetzner (my provider) can be found here: https://github.com/wiebew/hetzner-scripts 
 
 __IMPORTANT__ It assumes you are using a __startssl__ provided free ssl key. It will pull root certificates from startssl.com to create a keyfile that nginx can use. See https://www.startssl.com/?app=42. 
 
