@@ -117,6 +117,7 @@
 
   - name: stop and remove init scripts of spam assassin
     service: name=spamassassin state=stopped enabled=no
+    changed_when: False 
 
   - name: install nginx
     apt: name=nginx state=present
@@ -126,6 +127,7 @@
   
   - name: stop and remove init scripts of apache2
     service: name=apache2 state=stopped enabled=no
+    changed_when: False
     ignore_errors: yes
 
   - name: start nginx
@@ -189,6 +191,7 @@
     shell: "/bin/grep -ic dovecot /etc/squirrelmail/config.php | /bin/grep '^0$'"
     register: squirrelmail_not_configured
     ignore_errors: true
+    changed_when: False     
   
   - name: Copy expect script to configure squirrelmail
     template: src=squirrelmail.empty dest=/root/squirrelmail.empty
@@ -212,6 +215,7 @@
   - name: Check for installed ispconfig
     command: /usr/bin/test ! -e "/usr/local/ispconfig"
     register: ispconfig_absent
+    changed_when: False     
     ignore_errors: true
   
   - name: Copy expect script to configure ispconfig
@@ -250,6 +254,7 @@
   - command: /usr/bin/test -e /etc/ssl/private/site.key
     register: key_cert_present
     ignore_errors: True
+    changed_when: False     
     
   - name: decrypt ssl
     command: /usr/bin/openssl rsa -in /etc/ssl/private/site.key.crypted -out /etc/ssl/private/site.key -passin pass:{{private_key_password}}

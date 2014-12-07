@@ -13,6 +13,7 @@ In the folder roles/ispconfig/files you need to add
 * `site.key.crypted`, password protected private keyfile from startssl. The ansible script will prompt for a password
 
 You need to copy the `hosts.example` to a `hosts` file and change the content to your needs
+* `yourserverhere` the FQDN of your server e.g. `example.server.com`
 * `ansible_ssh_user` the username for ssh, e.g. username `ubuntu` if you are using amazon.
 * `mysql_root_password` the root password of the sqlserver that you want set
 * `php_time_zone`, the timezone used by php, see http://php.net/manual/en/timezones.php
