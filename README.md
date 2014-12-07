@@ -1,8 +1,11 @@
 ispconfig_install
 =================
 
-Installation of ubuntu platform, dovecot, squirrelmail, nginx for ispconfig
+Installation of ubuntu platform, dovecot, squirrelmail, nginx for ispconfig.
 
+The content of this script is based on the excellent tutorial from Falko Timme on howtoforge: http://www.howtoforge.com/the-perfect-server-ubuntu-14.04-nginx-bind-mysql-php-postfix-dovecot-and-ispconfig3
+
+I am using ispconfig for a number of years now, but I find I make too many errors with the manual entries needed to implement the howto. So I have automated the howto.
 
 Basically this script works on a cleanly installed  ssl enabled ubuntu 14.04 host that allows internet access to mail, ssh, http, https, 8080 and 8081 ports. An ansible script for preparing a server on Hetzner (my provider) can be found here: https://github.com/wiebew/hetzner-scripts 
 
