@@ -18,4 +18,5 @@ You need to copy the `hosts.example` to a `hosts` file and change the content to
 * `php_time_zone`, the timezone used by php, see http://php.net/manual/en/timezones.php
 
 Install with:
+
 `ansible-playbook -i hosts playbook.yml`
