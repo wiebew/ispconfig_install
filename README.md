@@ -23,7 +23,9 @@ You need to copy the `hosts.example` to a `hosts` file and change the content to
 
 Install with:
 
-`ansible-playbook -i hosts playbook.yml`
+```console
+ansible-playbook -i hosts playbook.yml
+```
 
 After the install the server will reboot. Once running again the 8080 and /webmail access should work.
 
