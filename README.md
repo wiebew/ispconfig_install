@@ -1,5 +1,4 @@
-ispconfig_install
-=================
+# ispconfig_install
 
 Installation of ubuntu platform, dovecot, squirrelmail, nginx for ispconfig.
 
@@ -29,8 +28,14 @@ ansible-playbook -i hosts playbook.yml
 
 After the install the server will reboot. Once running again the 8080 and /webmail access should work.
 
-Should phpmyadmin not work ssh to host and run 
+## HTTPS/SSL
+This script will configure nginx that all webtraffic for webmail and port 8080 and 8081 to use HTTPS/SSL. The certificate is also reused for postfix. If you want to use your own certificates. Comment out the certificate creation part and replace the cert files in /etc/ssl/private with a symlink pointing to the desired cert files.
+
+## PhpMyAdmin
+Should phpmyadmin not work, ssh to host and run 
+
 ```console
 sudo dpkg-reconfigure phpmyadmin
 ```
-and choose reinstall phpmyadmin database.
+
+Choose reinstall phpmyadmin database.
