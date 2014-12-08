@@ -29,4 +29,8 @@ ansible-playbook -i hosts playbook.yml
 
 After the install the server will reboot. Once running again the 8080 and /webmail access should work.
 
-Should phpmyadmin not work ssh to host and run `sudo dpkg-reconfigure phpmyadmin` and choose reinstall phpmyadmin database.
+Should phpmyadmin not work ssh to host and run 
+```console
+sudo dpkg-reconfigure phpmyadmin
+```
+and choose reinstall phpmyadmin database.
