@@ -267,7 +267,7 @@
     when: key_cert_present|failed
 
   - name: get root certificates part 2
-    command: wget http://www.startssl.com/certs/sub.class1.server.ca.pem -O /etc/ssl/private/sub.class1.server.ca.pem
+    command: wget http://www.startssl.com/certs/class1/sha2/pem/sub.class1.server.sha2.ca.pem -O /etc/ssl/private/sub.class1.server.ca.pem
     when: key_cert_present|failed
 
   # nginx needs the certs combined in one file
