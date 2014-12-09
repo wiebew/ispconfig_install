@@ -65,6 +65,7 @@ server {
         location /squirrelmail {
                root /usr/share/;
                index index.php index.html index.htm;
+	           add_header X-Frame-Options SAMEORIGIN;			   
                location ~ ^/squirrelmail/(.+\.php)$ {
                        try_files $uri =404;
                        root /usr/share/;

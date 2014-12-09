@@ -13,6 +13,7 @@ server {
         root   /var/www/apps;
 
         client_max_body_size 100M;
+        add_header X-Frame-Options SAMEORIGIN;			   
 
         location / {
                index index.php index.html;
