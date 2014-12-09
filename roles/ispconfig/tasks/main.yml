@@ -284,9 +284,16 @@
   - name: remove nginx default file
     file: path=/etc/nginx/sites-enabled/default state=absent
 
-  - name: upload ispconfig.vhost file
+  - name: upload nginx vhost files
     copy: src={{item}}.vhost dest=/etc/nginx/sites-available/{{item}}.vhost mode=644 force=yes
     notify: restart server
     with_items:
       - ispconfig
       - apps
+
+  - name: upload nginx conf files
+    copy: src={{item}}.conf dest=/etc/nginx/conf.d/{{item}}.conf mode=644 force=yes
+    notify: restart server
+    with_items:
+      - dns
+      - ssl
