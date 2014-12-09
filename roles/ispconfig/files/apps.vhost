@@ -3,10 +3,8 @@ server {
         listen 8081;
 
         ssl on;
-        ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
         ssl_certificate /etc/ssl/private/site.crt;
         ssl_certificate_key /etc/ssl/private/site.key;
-
         # redirect to https if accessed with http
         error_page 497 https://$host:8081$request_uri;
 

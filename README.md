@@ -31,6 +31,9 @@ After the install the server will reboot. Once running again the 8080 and /webma
 ### HTTPS/SSL
 This script will configure nginx that all webtraffic for webmail and port 8080 and 8081 to use HTTPS/SSL. The certificate is also reused for postfix. If you want to use your own certificates. Comment out the certificate creation part and replace the cert files in /etc/ssl/private with a symlink pointing to the desired cert files.
 
+The settings will give a ngingx site that rates as *A+* for SSL Security, more info: https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html
+The test was done with https://www.ssllabs.com/ssltest
+
 ### PhpMyAdmin
 Should phpmyadmin not work, ssh to host and run 
 
