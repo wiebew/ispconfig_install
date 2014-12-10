@@ -1,1 +1,3 @@
-yourserverhere.com	ansible_ssh_user="xxxx"  mysql_root_password="xxxx" php_time_zone="Europe/Amsterdam"
+# set diffie_hellman_key=true if you want to generate a more robust ssl handshake. Plz Note it takes 1 hour to generate on a fast machine.
+# you can also set it later if you first want test drive the script
+yourserverhere.com	ansible_ssh_user="xxxx"  mysql_root_password="xxxx" php_time_zone="Europe/Amsterdam"  diffie_hellman_key=false

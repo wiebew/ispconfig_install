@@ -280,7 +280,7 @@
     with_items:
       - sub.class1.server.ca.pem
       - ca.pem
-
+ 
   - name: remove nginx default file
     file: path=/etc/nginx/sites-enabled/default state=absent
 
@@ -298,3 +298,16 @@
       - dns
       - ssl
       - untrusted_content
+
+  - name: upload nginx conf files
+    copy: src={{item}}.conf dest=/etc/nginx/conf.d/{{item}}.conf mode=644 force=yes
+    notify: restart nginx
+    with_items:
+      - diffie_hellman
+    when: diffie_hellman_key
+
+  - name: create new diffie hellman key to ensure safe handshake can take up to an hour!
+    command: openssl dhparam -out dhparam.pem 4096 chdir=/etc/ssl/certs creates=/etc/ssl/certs/dhparam.pem
+    async: 7200
+    poll: 10
+    when: diffie_hellman_key
