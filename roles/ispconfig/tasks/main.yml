@@ -275,6 +275,45 @@
     shell: "cat /etc/ssl/private/site.crt.startssl /etc/ssl/private/sub.class1.server.ca.pem /etc/ssl/private/ca.pem > /etc/ssl/private/site.crt"
     when: key_cert_present|failed
 
+  # postfix needs the intermediate and root certs combined in one file
+  - name: combine certs for postfix
+    shell: "cat /etc/ssl/private/sub.class1.server.ca.pem /etc/ssl/private/ca.pem > /etc/postfix/chain.crt"
+    when: key_cert_present|failed
+    
+  - name: copy smtpd cert
+    shell: "cp /etc/ssl/private/site.crt.startssl /etc/postfix/site.crt"
+    when: key_cert_present|failed
+
+  - name: copy smtpd key
+    shell: "cp /etc/ssl/private/site.key /etc/postfix/site.key"
+    when: key_cert_present|failed
+    
+  - name: update dovecot SSL cert in conf
+    lineinfile: dest=/etc/dovecot/dovecot.conf regexp="^ssl_cert" line="ssl_cert = </etc/postfix/site.crt"
+
+  - name: update dovecot SSL key in conf
+    lineinfile: dest=/etc/dovecot/dovecot.conf regexp="^ssl_key" line="ssl_key = </etc/postfix/site.key"
+
+  - name: copy dovecot crt
+    shell: "cp /etc/ssl/private/site.crt /etc/dovecot/site.crt"
+    when: key_cert_present|failed
+
+  - name: copy dovecot key
+    shell: "cp /etc/ssl/private/site.key /etc/dovecot/site.key"
+    when: key_cert_present|failed  
+  
+  - file: path={{item}} owner=postfix group=postfix mode=660
+    when: key_cert_present|failed
+    with_items:
+      - /etc/postfix/site.key
+      - /etc/postfix/site.crt
+
+  - file: path={{item}} owner=dovecot group=dovecot mode=660
+    when: key_cert_present|failed
+    with_items:
+      - /etc/dovecot/site.key
+      - /etc/dovecot/site.crt
+
   - name: cleanup intermediate certs
     file: name=/etc/ssl/private/{{item}} state=absent
     with_items:
@@ -311,3 +350,7 @@
     async: 7200
     poll: 10
     when: diffie_hellman_key
+    
+  - name: Set up iptables rules
+    copy: src=iptables.up.rules dest=/etc/iptables.up.rules
+    notify: restart server

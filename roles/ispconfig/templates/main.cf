@@ -19,10 +19,9 @@ append_dot_mydomain = no
 readme_directory = /usr/share/doc/postfix
 
 # TLS parameters
-#smtpd_tls_cert_file = /etc/postfix/smtpd.cert
-#smtpd_tls_key_file = /etc/postfix/smtpd.key
-smtpd_tls_key_file = /etc/ssl/private/site.key;
-smtpd_tls_cert_file = /etc/ssl/private/site.crt;
+smtpd_tls_cert_file = /etc/postfix/site.crt
+smtpd_tls_key_file = /etc/postfix/site.key
+smtpd_tls_CAfile = /etc/postfix/chain.crt
 
 smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
 smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
@@ -74,6 +73,5 @@ smtpd_sasl_path = private/auth
 content_filter = amavis:[127.0.0.1]:10024
 receive_override_options = no_address_mappings
 message_size_limit = 0
-smtpd_tls_CAfile = /usr/local/ispconfig/interface/ssl/startssl.chain.class1.server.crt
 inet_protocols = all
 smtp_tls_security_level = may
