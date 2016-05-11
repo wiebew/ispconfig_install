@@ -8,7 +8,7 @@ server {
         # redirect to https if accessed with http
         error_page 497 https://$host:8081$request_uri;
 
-        server_name _;
+        server_name {{ansible_fqdn}};
 
         root   /var/www/apps;
 

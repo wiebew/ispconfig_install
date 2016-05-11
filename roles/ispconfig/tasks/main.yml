@@ -324,7 +324,7 @@
     file: path=/etc/nginx/sites-enabled/default state=absent
 
   - name: upload nginx vhost files
-    copy: src={{item}}.vhost dest=/etc/nginx/sites-available/{{item}}.vhost mode=644 force=yes
+    template: src={{item}}.vhost dest=/etc/nginx/sites-available/{{item}}.vhost mode=644 force=yes
     notify: restart server
     with_items:
       - ispconfig
