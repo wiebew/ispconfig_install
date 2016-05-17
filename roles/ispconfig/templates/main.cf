@@ -50,7 +50,19 @@ virtual_gid_maps = static:5000
 smtpd_sasl_auth_enable = yes
 broken_sasl_auth_clients = yes
 smtpd_sasl_authenticated_header = yes
-smtpd_recipient_restrictions = check_recipient_access mysql:/etc/postfix/mysql-virtual_recipient.cf, permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination
+smtpd_recipient_restrictions = check_recipient_access mysql:/etc/postfix/mysql-virtual_recipient.cf, permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination, reject_rbl_client zen.spamhaus.org, reject_rbl_client dnsbl-1.uceprotect.net,reject_rbl_client dnsbl-2.uceprotect.net, reject_rbl_client dnsbl-3.uceprotect.net
+# reject_rbl_client no-more-funn.moensted.dk,
+# reject_rbl_client virbl.dnsbl.bit.nl,
+# reject_rbl_client bl.spamcop.net,
+# reject_rbl_client dynamic.spamlists.tqmcube.com,
+# reject_rbl_client list.dsbl.org,
+# reject_rbl_client relays.ordb.org,
+# reject_rbl_client lists.spam.sux.com,
+# reject_rbl_client impersonator.lists.spam.sux.com,
+# reject_rbl_client dnsbl.njabl.org,
+# reject_rbl_client dnsbl.ahbl.org,
+
+
 smtpd_tls_security_level = may
 transport_maps = hash:/var/lib/mailman/data/transport-mailman, proxy:mysql:/etc/postfix/mysql-virtual_transports.cf
 relay_domains = mysql:/etc/postfix/mysql-virtual_relaydomains.cf
@@ -75,3 +87,5 @@ receive_override_options = no_address_mappings
 message_size_limit = 0
 inet_protocols = all
 smtp_tls_security_level = may
+
+
